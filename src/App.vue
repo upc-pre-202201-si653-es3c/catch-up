@@ -7,7 +7,6 @@
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <!-- TODO: Add Articles section -->
         <main-content :articles="articles"></main-content>
       </v-container>
       <v-footer class="secondary" app>

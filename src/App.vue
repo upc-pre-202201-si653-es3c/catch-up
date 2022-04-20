@@ -1,35 +1,37 @@
 <template>
-  <v-app light>
-    <!--TODO: Add Side Menu -->
-    <v-app-bar app color="primary" dark>
+  <v-app theme="light">
+    <v-app-bar app color="primary">
       <v-app-bar-nav-icon @click="drawer = !drawer" class="white--text"></v-app-bar-nav-icon>
-      <v-app-bar-title class="white--text">CatchUp</v-app-bar-title>
+      <v-app-bar-title>CatchUp</v-app-bar-title>
     </v-app-bar>
+    <side-menu :drawer="drawer" v-on:source-selected="setSource"/>
     <v-main>
       <v-container fluid>
-        <main-content :articles="articles"></main-content>
+        <unavailable-content v-if="errors.count > 0" :errors="errors"/>
+        <main-content v-else :articles="articles"></main-content>
       </v-container>
-      <v-footer class="secondary" app>
-        <v-row justify="center" no-gutters>
-          <div class="white--text ml-3">
-            Made with <v-icon class="red--text">mdi-heart</v-icon> using <a class="white--text" href="https://next.vuetifyjs.com/" target="_blank">Vuetify</a> by ACME Studio Developer Team
-          </div>
-        </v-row>
+      <v-footer color="primary">
+        <footer-content/>
       </v-footer>
     </v-main>
   </v-app>
 </template>
 
 <script>
-
-import axios from "axios";
 import MainContent from "./components/main-content.vue";
+import { NewsApiService } from "./core/services/news-api.service";
+import SideMenu from "./components/side-menu.vue";
+import UnavailableContent from "./components/unavailable-content.vue";
+import FooterContent from "./components/footer-content.vue";
 
 export default {
   name: 'App',
 
 
   components: {
+    FooterContent,
+    UnavailableContent,
+    SideMenu,
     MainContent
 
   },
@@ -40,6 +42,7 @@ export default {
       apiKey: 'fecf4feeffa64e4da682e7d268612ce5',
       articles: [],
       errors: [],
+      newsApi: new NewsApiService()
     };
   },
   created() {
@@ -52,15 +55,29 @@ export default {
     // On Source selected
     setSource(source) {
       this.drawer = !this.drawer;
-      this.getArticlesForSource(source.id);
+      this.getArticlesForSourceWithLogo(source);
     },
 
     // Fetch Articles for given Source
 
     getArticlesForSource(sourceId) {
-      axios.get(`https://newsapi.org/v2/top-headlines?sources=${sourceId}&apiKey=${this.apiKey}`)
+      this.newsApi.getArticlesForSource(sourceId)
           .then( response => {
             this.articles = response.data.articles;
+            console.log(response.data);
+          })
+          .catch(error => {
+            this.errors.push(error);
+            console.log(this.errors);
+          });
+
+    },
+
+    getArticlesForSourceWithLogo(source) {
+      this.newsApi.getArticlesForSource(source.id)
+          .then( response => {
+            this.articles = response.data.articles;
+            this.articles.forEach(article => article.source.url = source.url);
             console.log(response.data);
           })
           .catch(error => {

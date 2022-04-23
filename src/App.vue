@@ -3,6 +3,10 @@
     <v-app-bar app color="primary">
       <v-app-bar-nav-icon @click="drawer = !drawer" class="white--text"></v-app-bar-nav-icon>
       <v-app-bar-title>CatchUp</v-app-bar-title>
+      <v-spacer></v-spacer>
+      <template v-slot:append>
+        <language-switcher/>
+      </template>
     </v-app-bar>
     <side-menu :drawer="drawer" v-on:source-selected="setSource"/>
     <v-main>
@@ -23,12 +27,14 @@ import { NewsApiService } from "./core/services/news-api.service";
 import SideMenu from "./components/side-menu.vue";
 import UnavailableContent from "./components/unavailable-content.vue";
 import FooterContent from "./components/footer-content.vue";
+import LanguageSwitcher from "./components/language-switcher.vue";
 
 export default {
   name: 'App',
 
 
   components: {
+    LanguageSwitcher,
     FooterContent,
     UnavailableContent,
     SideMenu,
